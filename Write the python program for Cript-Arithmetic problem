@@ -1,0 +1,32 @@
+from itertools import permutations
+
+def solve_cryptarithmetic(puzzle):
+    # Splitting the puzzle into left and right parts and extracting unique characters
+    left, right = puzzle.lower().split('=')
+    left = left.split('+')
+    unique_chars = set(left[0] + left[1] + right)
+    
+    # Generating all possible permutations of digits for unique characters
+    for perm in permutations(range(10), len(unique_chars)):
+        # Mapping characters to digits
+        char_to_digit = {char: digit for char, digit in zip(unique_chars, perm)}
+        
+        # Evaluating left and right sides of the equation
+        left_val = int(''.join(str(char_to_digit[char]) for char in left[0])) + int(''.join(str(char_to_digit[char]) for char in left[1]))
+        right_val = int(''.join(str(char_to_digit[char]) for char in right))
+        
+        # Checking if the equation holds true
+        if left_val == right_val:
+            return char_to_digit
+    
+    return None
+
+# Example usage
+puzzle = "SEND + MORE = MONEY"
+solution = solve_cryptarithmetic(puzzle)
+if solution:
+    print("Solution found:")
+    for char, digit in solution.items():
+        print(char, '=', digit)
+else:
+    print("No solution found.")

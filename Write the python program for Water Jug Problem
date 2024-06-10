@@ -1,0 +1,50 @@
+from collections import deque
+
+# Function to find the steps to reach the target
+def water_jug(x, y, z):
+    visited = set()
+    queue = deque([(0, 0, '')])  # Initialize queue with initial state (0, 0, '')
+    
+    while queue:
+        current_x, current_y, steps = queue.popleft()
+        
+        # If target is achieved, return the steps
+        if current_x == z or current_y == z:
+            return steps
+        
+        # Mark current state as visited
+        visited.add((current_x, current_y))
+        
+        # Fill jug x
+        if (x, current_y) not in visited:
+            queue.append((x, current_y, steps + 'Fill jug x\n'))
+        # Fill jug y
+        if (current_x, y) not in visited:
+            queue.append((current_x, y, steps + 'Fill jug y\n'))
+        # Empty jug x
+        if (0, current_y) not in visited:
+            queue.append((0, current_y, steps + 'Empty jug x\n'))
+        # Empty jug y
+        if (current_x, 0) not in visited:
+            queue.append((current_x, 0, steps + 'Empty jug y\n'))
+        # Pour water from jug x to jug y
+        if current_x != 0 and current_y != y:
+            pour_amount = min(current_x, y - current_y)
+            if (current_x - pour_amount, current_y + pour_amount) not in visited:
+                queue.append((current_x - pour_amount, current_y + pour_amount, steps + 'Pour water from jug x to jug y\n'))
+        # Pour water from jug y to jug x
+        if current_y != 0 and current_x != x:
+            pour_amount = min(current_y, x - current_x)
+            if (current_x + pour_amount, current_y - pour_amount) not in visited:
+                queue.append((current_x + pour_amount, current_y - pour_amount, steps + 'Pour water from jug y to jug x\n'))
+    
+    # If no solution is found
+    return "No solution"
+
+# Example usage
+x = 4  # Capacity of jug x
+y = 3  # Capacity of jug y
+z = 2  # Target capacity
+steps = water_jug(x, y, z)
+print("Steps to achieve", z, "liters of water:")
+print(steps)

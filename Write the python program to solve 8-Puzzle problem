@@ -1,0 +1,64 @@
+from collections import deque
+
+# Function to find the index of the '0' in the puzzle grid
+def find_blank(puzzle):
+    for i in range(3):
+        for j in range(3):
+            if puzzle[i][j] == 0:
+                return i, j
+
+# Function to generate all possible next moves
+def generate_moves(puzzle):
+    moves = []
+    blank_i, blank_j = find_blank(puzzle)
+    if blank_i > 0:
+        puzzle[blank_i][blank_j], puzzle[blank_i - 1][blank_j] = puzzle[blank_i - 1][blank_j], puzzle[blank_i][blank_j]
+        moves.append([list(row) for row in puzzle])
+        puzzle[blank_i][blank_j], puzzle[blank_i - 1][blank_j] = puzzle[blank_i - 1][blank_j], puzzle[blank_i][blank_j]
+    if blank_i < 2:
+        puzzle[blank_i][blank_j], puzzle[blank_i + 1][blank_j] = puzzle[blank_i + 1][blank_j], puzzle[blank_i][blank_j]
+        moves.append([list(row) for row in puzzle])
+        puzzle[blank_i][blank_j], puzzle[blank_i + 1][blank_j] = puzzle[blank_i + 1][blank_j], puzzle[blank_i][blank_j]
+    if blank_j > 0:
+        puzzle[blank_i][blank_j], puzzle[blank_i][blank_j - 1] = puzzle[blank_i][blank_j - 1], puzzle[blank_i][blank_j]
+        moves.append([list(row) for row in puzzle])
+        puzzle[blank_i][blank_j], puzzle[blank_i][blank_j - 1] = puzzle[blank_i][blank_j - 1], puzzle[blank_i][blank_j]
+    if blank_j < 2:
+        puzzle[blank_i][blank_j], puzzle[blank_i][blank_j + 1] = puzzle[blank_i][blank_j + 1], puzzle[blank_i][blank_j]
+        moves.append([list(row) for row in puzzle])
+        puzzle[blank_i][blank_j], puzzle[blank_i][blank_j + 1] = puzzle[blank_i][blank_j + 1], puzzle[blank_i][blank_j]
+    return moves
+
+# Function to check if a puzzle is in the goal state
+def is_goal(puzzle, goal):
+    return puzzle == goal
+
+# Function to solve the 8-puzzle problem using breadth-first search
+def solve_puzzle(start, goal):
+    visited = set()
+    queue = deque([(start, [])])
+
+    while queue:
+        current_puzzle, path = queue.popleft()
+        visited.add(tuple(map(tuple, current_puzzle)))
+
+        if is_goal(current_puzzle, goal):
+            return path
+
+        for move in generate_moves(current_puzzle):
+            if tuple(map(tuple, move)) not in visited:
+                queue.append((move, path + [move]))
+
+    return None
+
+# Example usage:
+initial_state = [[1, 2, 3], [4, 0, 5], [6, 7, 8]]
+goal_state = [[1, 2, 3], [4, 5, 0], [6, 7, 8]]
+
+solution = solve_puzzle(initial_state, goal_state)
+if solution:
+    print("Steps to reach the goal:")
+    for step in solution:
+        print(step)
+else:
+    print("No solution found.")

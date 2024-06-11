@@ -1,0 +1,63 @@
+import random
+
+# Define the environment
+class Environment:
+    def __init__(self, width, height, dirt_probability=0.3):
+        self.width = width
+        self.height = height
+        self.grid = [[random.random() < dirt_probability for _ in range(width)] for _ in range(height)]
+        self.vacuum_position = (0, 0)  # Starting position of the vacuum cleaner
+
+    def is_dirty(self, x, y):
+        return self.grid[y][x]
+
+    def clean(self, x, y):
+        self.grid[y][x] = False
+
+    def display(self):
+        for row in self.grid:
+            print(''.join(['D' if cell else 'C' for cell in row]))
+        print()
+
+# Define the vacuum cleaner agent
+class VacuumCleaner:
+    def __init__(self, environment):
+        self.environment = environment
+        self.position = environment.vacuum_position
+
+    def move(self, direction):
+        x, y = self.position
+        if direction == 'up' and y > 0:
+            self.position = (x, y - 1)
+        elif direction == 'down' and y < self.environment.height - 1:
+            self.position = (x, y + 1)
+        elif direction == 'left' and x > 0:
+            self.position = (x - 1, y)
+        elif direction == 'right' and x < self.environment.width - 1:
+            self.position = (x + 1, y)
+
+    def clean(self):
+        x, y = self.position
+        if self.environment.is_dirty(x, y):
+            self.environment.clean(x, y)
+
+    def random_walk(self, steps):
+        for _ in range(steps):
+            self.clean()
+            self.environment.display()
+            direction = random.choice(['up', 'down', 'left', 'right'])
+            self.move(direction)
+
+# Main function to run the simulation
+if __name__ == '__main__':
+    width, height = 5, 5  # Define the size of the grid
+    environment = Environment(width, height)
+    vacuum_cleaner = VacuumCleaner(environment)
+    
+    print("Initial Environment:")
+    environment.display()
+    
+    vacuum_cleaner.random_walk(20)  # Let the vacuum cleaner walk randomly for 20 steps
+    
+    print("Final Environment:")
+    environment.display()

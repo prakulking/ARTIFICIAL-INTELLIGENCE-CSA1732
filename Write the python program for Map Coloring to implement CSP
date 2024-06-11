@@ -1,0 +1,48 @@
+def is_safe(node, color, assignment, graph):
+    for neighbor in graph[node]:
+        if neighbor in assignment and assignment[neighbor] == color:
+            return False
+    return True
+
+def backtrack(assignment, graph, colors):
+    if len(assignment) == len(graph):
+        return assignment
+
+    unassigned = [node for node in graph if node not in assignment]
+
+    first = unassigned[0]
+    for color in colors:
+        if is_safe(first, color, assignment, graph):
+            assignment[first] = color
+            result = backtrack(assignment, graph, colors)
+            if result:
+                return result
+            assignment.pop(first)
+
+    return None
+
+def map_coloring(graph, colors):
+    assignment = {}
+    return backtrack(assignment, graph, colors)
+
+# Example usage
+if __name__ == '__main__':
+    graph = {
+        'WA': ['NT', 'SA'],
+        'NT': ['WA', 'SA', 'Q'],
+        'SA': ['WA', 'NT', 'Q', 'NSW', 'V'],
+        'Q': ['NT', 'SA', 'NSW'],
+        'NSW': ['Q', 'SA', 'V'],
+        'V': ['SA', 'NSW'],
+        'T': []
+    }
+
+    colors = ['Red', 'Green', 'Blue']
+    solution = map_coloring(graph, colors)
+    
+    if solution:
+        print("Solution found:")
+        for region, color in solution.items():
+            print(f"{region}: {color}")
+    else:
+        print("No solution found.")

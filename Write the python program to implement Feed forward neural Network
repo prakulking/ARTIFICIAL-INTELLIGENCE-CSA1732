@@ -1,0 +1,81 @@
+import numpy as np
+
+class NeuralNetwork:
+    def __init__(self, layers, learning_rate=0.1):
+        self.layers = layers
+        self.learning_rate = learning_rate
+        self.weights = [np.random.randn(layers[i], layers[i+1]) for i in range(len(layers)-1)]
+        self.biases = [np.random.randn(1, layers[i+1]) for i in range(len(layers)-1)]
+
+    def sigmoid(self, x):
+        return 1 / (1 + np.exp(-x))
+
+    def sigmoid_derivative(self, x):
+        return x * (1 - x)
+
+    def feedforward(self, x):
+        activations = [x]
+        weighted_inputs = []
+
+        for i in range(len(self.weights)):
+            weighted_input = np.dot(activations[-1], self.weights[i]) + self.biases[i]
+            weighted_inputs.append(weighted_input)
+            activation = self.sigmoid(weighted_input)
+            activations.append(activation)
+
+        return activations, weighted_inputs
+
+    def backpropagation(self, x, y, activations, weighted_inputs):
+        deltas = [None] * len(self.weights)
+
+        error = y - activations[-1]
+        delta = error * self.sigmoid_derivative(activations[-1])
+        deltas[-1] = delta
+
+        for i in reversed(range(len(deltas)-1)):
+            error = deltas[i+1].dot(self.weights[i+1].T)
+            delta = error * self.sigmoid_derivative(activations[i+1])
+            deltas[i] = delta
+
+        for i in range(len(self.weights)):
+            self.weights[i] += self.learning_rate * activations[i].T.dot(deltas[i])
+            self.biases[i] += self.learning_rate * np.sum(deltas[i], axis=0, keepdims=True)
+
+    def train(self, X, y, epochs):
+        for epoch in range(epochs):
+            for inputs, label in zip(X, y):
+                inputs = inputs.reshape(1, -1)
+                label = label.reshape(1, -1)
+                activations, weighted_inputs = self.feedforward(inputs)
+                self.backpropagation(inputs, label, activations, weighted_inputs)
+
+            if epoch % 100 == 0:
+                loss = np.mean(np.square(y - activations[-1]))
+                print(f"Epoch {epoch}, Loss: {loss}")
+
+    def predict(self, x):
+        activations, _ = self.feedforward(x)
+        return activations[-1]
+
+# Example usage
+if __name__ == "__main__":
+    # Create a dataset for XOR problem
+    X = np.array([[0, 0],
+                  [0, 1],
+                  [1, 0],
+                  [1, 1]])
+
+    y = np.array([[0], [1], [1], [0]])
+
+    # Define the neural network
+    nn = NeuralNetwork(layers=[2, 3, 1], learning_rate=0.1)
+
+    # Train the neural network
+    nn.train(X, y, epochs=1000)
+
+    # Predict
+    for inputs in X:
+        inputs = inputs.reshape(1, -1)
+        prediction = nn.predict(inputs)
+        print(f"Input: {inputs.flatten()}, Prediction: {prediction.flatten()}")
+

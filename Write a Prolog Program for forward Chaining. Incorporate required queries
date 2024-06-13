@@ -1,0 +1,39 @@
+% Facts: parent(Parent, Child).
+parent(john, bob).
+parent(john, lisa).
+parent(lisa, sam).
+parent(lisa, anne).
+parent(bob, patrick).
+parent(bob, emma).
+parent(anne, jenny).
+
+% Rules: child(Child, Parent) :- parent(Parent, Child).
+child(Child, Parent) :- parent(Parent, Child).
+
+% Forward chaining inference engine
+forward_chain :-
+    findall(child(Child, Parent), (parent(Parent, Child), \+ child(Child, Parent)), Children),
+    process(Children).
+
+process([]) :-
+    write('No more conclusions can be drawn.'), nl.
+
+process([Child | Rest]) :-
+    (
+        Child ->
+        process(Rest)
+    ;
+        assertz(Child),
+        write(Child), write(' inferred.'), nl,
+        process(Rest)
+    ).
+
+% Example queries:
+
+% Run forward chaining to infer all child relationships
+% ?- forward_chain.
+
+% Check if a specific child-parent relationship is inferred
+% ?- child(sam, lisa).
+% ?- child(emma, bob).
+% ?- child(jenny, anne).

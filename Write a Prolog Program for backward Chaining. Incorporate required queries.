@@ -1,0 +1,26 @@
+% Facts: parent(Parent, Child).
+parent(john, bob).
+parent(john, lisa).
+parent(lisa, sam).
+parent(lisa, anne).
+parent(bob, patrick).
+parent(bob, emma).
+parent(anne, jenny).
+
+% Rules: child(Child, Parent) :- parent(Parent, Child).
+child(Child, Parent) :- parent(Parent, Child).
+
+% Backward chaining inference engine
+prove_child(Parent, Child) :-
+    parent(Parent, Child).
+
+prove_child(Parent, Child) :-
+    parent(Parent, Grandchild),
+    prove_child(Grandchild, Child).
+
+% Example queries:
+
+% Prove the parent-child relationships
+% ?- prove_child(john, bob).
+% ?- prove_child(lisa, sam).
+% ?- prove_child(bob, emma).
